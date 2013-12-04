@@ -1,0 +1,23 @@
+{
+  "name": "pocket-sdk",
+  "version": "0.0.0",
+  "description": "Headless node sdk for integrating with pocket(getpocket.com).",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "grunt test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/teambition/Pocket-Node-SDK.git"
+  },
+  "keywords": [
+    "node",
+    "sdk",
+    "pocket"
+  ],
+  "author": "Junyuan Qi",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/teambition/Pocket-Node-SDK/issues"
+  }
+}
