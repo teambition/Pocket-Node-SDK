@@ -26,6 +26,7 @@ pocket.init(consumer_key, redirect_uri)
   - pocketCallback: `/pocket/callback`
   - refer: `pocket`
   - afterSuccess: (req, res) ->
+
 ```
 pocket.init(consumer_key, redirect_uri)
 
