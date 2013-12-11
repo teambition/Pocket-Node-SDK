@@ -6,6 +6,11 @@
   "scripts": {
     "test": "grunt test"
   },
+  "maintainers": {
+	"teambition",
+	"conan007ai",
+	"leeqiang"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/teambition/Pocket-Node-SDK.git"
