@@ -52,14 +52,14 @@ authCallback = (req, res, next, options) ->
   )
 
 
-module.exports = auth = (options = {}) ->
+module.exports = (options = {}) ->
 
   options.authorizeUri or= '/pocket/authorize'
   options.pocketCallback or= '/pocket/callback'
   options.refer or= 'pocket'
   options.afterSuccess or= () ->
 
-  return auth = (req, res, next) ->
+  (req, res, next) ->
     switch req.path
       when options.authorizeUri
         authorize(req, res, next)
