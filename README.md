@@ -15,7 +15,26 @@ pocket = require('pocket-sdk')
 consumer_key = 'your consumer_key'
 redirect_uri = 'your redirect_uri'
 
-pocket.init(consumer_key, redirect_uri)
+pocket.init(consumer_key, redirect_uri, [access_token])
+
+# required access token
+pocket.setAccessToken(access_token)
+pocket.get([condtions], (err, ret) ->
+  # ret: { status: 1, complete: 1, list: {} ]
+)
+
+pocket.add({
+  url: '',
+  title: '',
+  tags: '',
+  tweet_id: ''
+}, (err, ret) ->
+  # ret: { item: {}, status:1 }
+)
+
+pocket.send([actions], (err, ret) ->
+  # ret: { action_results:[true], status: 1 }
+)
 
 ```
 
@@ -39,6 +58,8 @@ app.configure ->
   app.use(pocket.oauth({
     afterSuccess: (req, res, next) ->
         # TODO: callback
+        # req.body.ret: { access_token: '', username: ''}
+        pocket.setAccessToken(req.body.ret.access_token)
         next()
   }))
 
