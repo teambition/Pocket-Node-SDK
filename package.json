@@ -25,5 +25,9 @@
     "grunt-contrib-coffee": "~0.7.0",
     "grunt-notify": "~0.2.16",
     "grunt-contrib-watch": "~0.5.3"
+  },
+  "dependencies": {
+    "request": "~2.29.0",
+    "qs": "~0.6.6"
   }
 }
