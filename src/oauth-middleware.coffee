@@ -37,18 +37,12 @@ authCallback = (req, res, next, options) ->
       code: req.query.code
     })
   , (err, resp, result) ->
-    return next(result) if resp.statusCode isnt 200
-
     try
       ret = qs.parse(result)
       ret.refer = options.refer
-      req.body.ret = ret
-      options.afterSuccess(req, res, (err) ->
-        return next(err) if err
-        redirect(res, req.headers.referer or '/')
-      )
     catch e
-      return next(e)
+      ret = {}
+    options.afterSuccess(ret, req, res, next)
   )
 
 
@@ -57,7 +51,8 @@ module.exports = (options = {}) ->
   options.authorizeUri or= '/pocket/authorize'
   options.pocketCallback or= '/pocket/callback'
   options.refer or= 'pocket'
-  options.afterSuccess or= () ->
+  options.afterSuccess or= (ret, req, res) ->
+    redirect(res, req.headers.referer or '/')
 
   (req, res, next) ->
     switch req.path

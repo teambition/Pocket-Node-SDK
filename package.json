@@ -1,6 +1,6 @@
 {
   "name": "pocket-sdk",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Headless node sdk for integrating with pocket(getpocket.com).",
   "main": "lib/index.js",
   "scripts": {

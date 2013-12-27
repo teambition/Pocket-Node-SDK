@@ -56,10 +56,10 @@ app.configure ->
   app.use(app.router)
 
   app.use(pocket.oauth({
-    afterSuccess: (req, res, next) ->
+    afterSuccess: (token, req, res, next) ->
         # TODO: callback
-        # req.body.ret: { access_token: '', username: ''}
-        pocket.setAccessToken(req.body.ret.access_token)
+        # token: { access_token: '', username: ''}
+        pocket.setAccessToken(token.access_token)
         next()
   }))
 
