@@ -4,38 +4,33 @@ request = require('request')
 
 class Pocket
 
-  @apiHost: 'https://getpocket.com'
-  @requestTokenUri: '/v3/oauth/request'
-  @authorizeUri: '/auth/authorize'
-  @accessTokenUri: '/v3/oauth/authorize'
-  @retrieveUri: '/v3/get'
-  @addUri: '/v3/add'
-  @modifyUri: '/v3/send'
+  apiHost: 'https://getpocket.com'
+  requestTokenUri: '/v3/oauth/request'
+  authorizeUri: '/auth/authorize'
+  accessTokenUri: '/v3/oauth/authorize'
+  retrieveUri: '/v3/get'
+  addUri: '/v3/add'
+  modifyUri: '/v3/send'
 
-  @baseParams: {
-    consumer_key: Pocket.consumer_key
-    access_token: Pocket.access_token
-  }
+  setAccessToken: (token) ->
+    @access_token = token
 
-  @setAccessToken: (token) ->
-    Pocket.access_token = token
+  constructor: (consumer_key, redirect_uri) ->
+    @consumer_key = consumer_key
+    @redirect_uri = redirect_uri
+    @access_token = ''
 
-  @init: (consumer_key, redirect_uri, access_token) ->
-    Pocket.consumer_key = consumer_key
-    Pocket.redirect_uri = redirect_uri
-    Pocket.access_token = access_token or ''
+  getUrl: (apiType) ->
+    return "#{@apiHost}#{@["#{apiType}Uri"]}"
 
-  @getUrl: (apiType) ->
-    return "#{Pocket.apiHost}#{Pocket["#{apiType}Uri"]}"
+  getRequestTokenUrl: ->
+    return @getUrl("requestToken")
 
-  @getRequestTokenUrl: ->
-    return Pocket.getUrl("requestToken")
+  getAuthorizeUrl: ->
+    return @getUrl("authorize")
 
-  @getAuthorizeUrl: ->
-    return Pocket.getUrl("authorize")
-
-  @getAccessTokenUrl: ->
-    return Pocket.getUrl("accessToken")
+  getAccessTokenUrl: ->
+    return @getUrl("accessToken")
 
   # state	string		See below for valid values
   # favorite	0 or 1		See below for valid values
@@ -48,17 +43,23 @@ class Pocket
   # since	timestamp		Only return items modified since the given since unix timestamp
   # count	integer		Only return count number of items
   # offset	integer		Used only with count; start returning from offset position of results
-  @get: (conditions = {}, callback = ->) ->
+  get: (conditions = {}, callback = ->) ->
 
     if typeof conditions is 'function'
       callback = conditions
       conditions = {}
 
-    conditions = extend(conditions, Pocket.baseParams)
+    conditions = extend(conditions, @baseParams)
 
-    url = makeUrl(Pocket.getUrl('retrieve'), conditions)
+    unless conditions.access_token
+      throw new Error("access_token is required")
+
+    url = makeUrl(@getUrl('retrieve'), conditions)
     request.get(url, (err, resp, ret) ->
-      callback(err, JSON.parse(ret))
+      try
+        callback(err, JSON.parse(ret))
+      catch e
+        callback(err, ret)
     )
 
   # url	string		The URL of the item you want to save
@@ -67,16 +68,20 @@ class Pocket
   # tweet_id	string	optional	If you are adding Pocket support to a Twitter client, please send along a reference to the tweet status id. This allows Pocket to show the original tweet alongside the article.
   # consumer_key	string		Your application's Consumer Key
   # access_token	string		The user's Pocket access token
-  @add: (data, callback = ->) ->
+  add: (data, callback = ->) ->
 
-    data = extend(data, Pocket.baseParams)
+    data = extend(data, @baseParams)
 
     request.post(
       headers: {'content-type' : 'application/x-www-form-urlencoded'}
-      url: Pocket.getUrl('add')
+      url: @getUrl('add')
       body: qs.stringify(data)
     , (err, resp, ret) ->
-      callback(err, JSON.parse(ret))
+      try
+        callback(err, JSON.parse(ret))
+      catch e
+        console.error(err, ret)
+        callback(null, {})
     )
 
   # consumer_key	string		Your application's Consumer Key
@@ -95,13 +100,25 @@ class Pocket
   #    tags_replace - Replace all of the tags for an item with one or more provided tags
   #    tags_clear - Remove all tags from an item
   #    tag_rename - Rename a tag; this affects all items with this tag
-  @send: (actions, callback = ->) ->
+  send: (actions, callback = ->) ->
 
-    url = makeUrl(Pocket.getUrl('modify'), Pocket.baseParams)
+    url = makeUrl(@getUrl('modify'), @baseParams)
     url += '&actions=' + encodeURIComponent(JSON.stringify(actions))
     request.get(url, (err, resp, ret) ->
-      callback(err, JSON.parse(ret))
+      try
+        callback(err, JSON.parse(ret))
+      catch e
+        console.error(err, ret)
+        callback(null, {})
     )
+
+  @::__defineGetter__ 'baseParams', ->
+    d = {
+      consumer_key: @consumer_key
+    }
+
+    d.access_token = @access_token if @access_token
+    return d
 
 makeUrl = (prefix, query) ->
   query = qs.stringify(query) if typeof query isnt 'string'
@@ -113,4 +130,12 @@ extend = (a, b) ->
   return a
 
 
-module.exports = Pocket
+pocket = new Pocket
+pocket.Pocket = Pocket
+pocket.init = (consumer_key, redirect_uri) ->
+  unless consumer_key
+    throw new Error("consumer_key is required")
+  pocket.consumer_key = consumer_key
+  pocket.redirect_uri = redirect_uri
+
+module.exports = pocket

@@ -15,11 +15,12 @@ pocket = require('pocket-sdk')
 consumer_key = 'your consumer_key'
 redirect_uri = 'your redirect_uri'
 
-pocket.init(consumer_key, redirect_uri, [access_token])
+pocket.init(consumer_key, redirect_uri)
 
 # required access token
-pocket.setAccessToken(access_token)
-pocket.get([condtions], (err, ret) ->
+pocket.get({
+  access_token: access_token
+}, (err, ret) ->
   # ret: { status: 1, complete: 1, list: {} ]
 )
 
