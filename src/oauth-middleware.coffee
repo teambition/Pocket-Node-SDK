@@ -39,6 +39,7 @@ authCallback = (req, res, next, options) ->
       consumer_key: pocket.consumer_key
       code: req.query.code
     })
+    timeout: 10*1000
   , (err, resp, result) ->
     try
       if resp.statusCode isnt 200
@@ -46,7 +47,7 @@ authCallback = (req, res, next, options) ->
       else ret = qs.parse(result)
       ret.refer = options.refer
     catch e
-      ret = {}
+      ret = err or e
     options.afterSuccess(ret, req, res, next)
   )
 
