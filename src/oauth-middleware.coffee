@@ -22,7 +22,9 @@ authorize = (req, res, next) ->
     try
       result = qs.parse(result)
       ri = encodeURIComponent("#{pocket.redirect_uri}?code=#{result.code}")
-      res.redirect("#{authorizeUrl}?request_token=#{result.code}&redirect_uri=#{ri}")
+      ri += "&state=#{req.query.token}" if req.query.token
+      url = "#{authorizeUrl}?request_token=#{result.code}&redirect_uri=#{ri}"
+      res.redirect(url)
     catch e
       next(e)
   )
@@ -38,7 +40,9 @@ authCallback = (req, res, next, options) ->
     })
   , (err, resp, result) ->
     try
-      ret = qs.parse(result)
+      if resp.statusCode isnt 200
+        ret = message: result
+      else ret = qs.parse(result)
       ret.refer = options.refer
     catch e
       ret = {}
