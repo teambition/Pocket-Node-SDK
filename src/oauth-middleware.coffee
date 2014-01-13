@@ -21,8 +21,9 @@ authorize = (req, res, next) ->
   , (err, resp, result) ->
     try
       result = qs.parse(result)
-      ri = encodeURIComponent("#{pocket.redirect_uri}?code=#{result.code}")
+      ri = "#{pocket.redirect_uri}?code=#{result.code}"
       ri += "&state=#{req.query.token}" if req.query.token
+      ri = encodeURIComponent(ri)
       url = "#{authorizeUrl}?request_token=#{result.code}&redirect_uri=#{ri}"
       res.redirect(url)
     catch e
