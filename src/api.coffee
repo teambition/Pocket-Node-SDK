@@ -12,13 +12,9 @@ class Pocket
   addUri: '/v3/add'
   modifyUri: '/v3/send'
 
-  setAccessToken: (token) ->
-    @access_token = token
-
   constructor: (consumer_key, redirect_uri) ->
     @consumer_key = consumer_key
     @redirect_uri = redirect_uri
-    @access_token = ''
 
   getUrl: (apiType) ->
     return "#{@apiHost}#{@["#{apiType}Uri"]}"
@@ -49,7 +45,7 @@ class Pocket
       callback = conditions
       conditions = {}
 
-    conditions = extend(conditions, @baseParams)
+    conditions.consumer_key = @consumer_key
 
     unless conditions.access_token
       throw new Error("access_token is required")
@@ -68,9 +64,9 @@ class Pocket
   # tweet_id	string	optional	If you are adding Pocket support to a Twitter client, please send along a reference to the tweet status id. This allows Pocket to show the original tweet alongside the article.
   # consumer_key	string		Your application's Consumer Key
   # access_token	string		The user's Pocket access token
-  add: (data, callback = ->) ->
+  add: (data = {}, callback = ->) ->
 
-    data = extend(data, @baseParams)
+    data.consumer_key = @consumer_key
 
     request.post(
       headers: {'content-type' : 'application/x-www-form-urlencoded'}
@@ -100,9 +96,10 @@ class Pocket
   #    tags_replace - Replace all of the tags for an item with one or more provided tags
   #    tags_clear - Remove all tags from an item
   #    tag_rename - Rename a tag; this affects all items with this tag
-  send: (actions, callback = ->) ->
+  send: (data, callback = ->) ->
 
-    url = makeUrl(@getUrl('modify'), @baseParams)
+    {actions, access_token} = data
+    url = makeUrl(@getUrl('modify'), {consumer_key: @consumer_key, access_token: access_token})
     url += '&actions=' + encodeURIComponent(JSON.stringify(actions))
     request.get(url, (err, resp, ret) ->
       try
@@ -111,14 +108,6 @@ class Pocket
         console.error(err, ret)
         callback(null, {})
     )
-
-  @::__defineGetter__ 'baseParams', ->
-    d = {
-      consumer_key: @consumer_key
-    }
-
-    d.access_token = @access_token if @access_token
-    return d
 
 makeUrl = (prefix, query) ->
   query = qs.stringify(query) if typeof query isnt 'string'
