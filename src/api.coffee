@@ -53,9 +53,11 @@ class Pocket
     url = makeUrl(@getUrl('retrieve'), conditions)
     request.get(url, (err, resp, ret) ->
       try
-        callback(err, JSON.parse(ret))
+        ret = JSON.parse(ret)
       catch e
-        callback(err, ret)
+        err or= e
+
+      callback(err, ret)
     )
 
   # url	string		The URL of the item you want to save
@@ -74,10 +76,10 @@ class Pocket
       body: qs.stringify(data)
     , (err, resp, ret) ->
       try
-        callback(err, JSON.parse(ret))
+        ret = JSON.parse(ret)
       catch e
-        console.error(err, ret)
-        callback(null, {})
+        err or= e
+      callback(null, {})
     )
 
   # consumer_key	string		Your application's Consumer Key
@@ -103,10 +105,10 @@ class Pocket
     url += '&actions=' + encodeURIComponent(JSON.stringify(actions))
     request.get(url, (err, resp, ret) ->
       try
-        callback(err, JSON.parse(ret))
+        ret = JSON.parse(ret)
       catch e
-        console.error(err, ret)
-        callback(null, {})
+        err or= e
+      callback(null, {})
     )
 
 makeUrl = (prefix, query) ->
