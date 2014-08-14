@@ -26,7 +26,7 @@
     "url": "https://github.com/teambition/Pocket-Node-SDK/issues"
   },
   "dependencies": {
-    "request": "~2.29.0",
-    "qs": "~0.6.6"
+    "request": "~2.40.0",
+    "qs": "~1.2.1"
   }
 }
