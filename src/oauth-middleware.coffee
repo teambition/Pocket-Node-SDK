@@ -2,10 +2,11 @@ qs = require('qs')
 request = require('request')
 pocket = require('./api')
 
-redirect = (res, url) ->
-  res.writeHead(302, {Location: url})
-  res.end()
-
+redirect = (res, ret) ->
+  if ret.access_token
+    res.cookie 'access_token', ret.access_token
+  res.json(ret)
+  
 authorize = (req, res, next) ->
 
   requestTokenUrl = pocket.getRequestTokenUrl()
@@ -58,7 +59,7 @@ module.exports = (options = {}) ->
   options.pocketCallback or= '/pocket/callback'
   options.refer or= 'pocket'
   options.afterSuccess or= (ret, req, res) ->
-    redirect(res, req.headers.referer or '/')
+    redirect(res, ret)
 
   (req, res, next) ->
     switch req.path
